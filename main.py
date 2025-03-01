@@ -1,35 +1,24 @@
 import os
-import subprocess
-import random
 
 # 📍 Set your GitHub repository path
 REPO_PATH = "/Users/nileshhaldar98/Develpoer/bot-scam"
 
-# 🎯 Move into the GitHub repo folder
+# Move into the repository
 os.chdir(REPO_PATH)
 
-# 📂 Define language files and sizes (in KB)
-files = {
-    "main.js": 760,   # 76% JavaScript
-    "app.java": 80,   # 8% Java
-    "script.py": 60,  # 6% Python
-    "program.c": 50,  # 5% C
-    "code.cpp": 50    # 5% C++
-}
+print("🔍 Finding and deleting all 2019 commits...")
 
-# 📄 Function to create files with specified sizes
-def create_files():
-    for filename, size_kb in files.items():
-        with open(filename, "w") as file:
-            file.write(f"// {filename}\n")
-            file.write("A" * (size_kb * 1024))  # Fill with junk data
+# 🛠️ Run git filter-repo to remove all 2019 commits
+os.system('git filter-repo --commit-callback \''
+          'commit_date = int(commit.original_committer_date)\n'
+          'if 1546300800 <= commit_date < 1577836800:  # 2019 timestamp range\n'
+          '    commit.skip()\''
+)
 
-# 🚀 Function to commit and push changes
-def commit_changes():
-    subprocess.run(["git", "add", "."])
-    subprocess.run(["git", "commit", "-m", "Added files to manipulate language stats"])
-    subprocess.run(["git", "push"])
+print("✅ 2019 commits removed!")
 
-# 🔥 Run everything automatically
-create_files()
-commit_changes()
+# 🚀 Force push the cleaned history to GitHub
+print("🔄 Pushing changes to GitHub...")
+os.system("git push origin --force --all")
+
+print("🎉 Done! 2019 commits should disappear within an hour.")
